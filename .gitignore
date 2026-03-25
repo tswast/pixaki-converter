@@ -1,0 +1,22 @@
+# Rust
+/target
+Cargo.lock
+
+# OS-specific
+.DS_Store
+
+# Logs
+*.log
+
+# Output files
+*.aseprite
+
+# Art assets
+2010s/
+2021/
+2022/
+2023/
+2024/
+2025/
+emoji/
+Who\ Goes\ First/
