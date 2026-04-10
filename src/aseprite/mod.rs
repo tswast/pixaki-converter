@@ -22,7 +22,7 @@ pub fn write_word<W: Write>(writer: &mut W, value: WORD) -> Result<()> {
     writer.write_all(&value.to_le_bytes())
 }
 
-// Function to write a SHORT (i16) in little-endian
+// Function to write a SHORT (i116) in little-endian
 pub fn write_short<W: Write>(writer: &mut W, value: SHORT) -> Result<()> {
     writer.write_all(&value.to_le_bytes())
 }
@@ -77,7 +77,7 @@ impl AsepriteHeader {
             width,
             height,
             color_depth: 32, // RGBA
-            flags: 1, // Layer opacity is valid
+            flags: 1,        // Layer opacity is valid
             speed: 100,
             zero1: 0,
             zero2: 0,
@@ -131,7 +131,7 @@ pub struct FrameHeader {
 impl FrameHeader {
     pub fn new(chunks: WORD, duration: WORD) -> Self {
         Self {
-            size: 0, // To be calculated later
+            size: 16, // Fixed size for FrameHeader
             magic_number: 0xF1FA,
             chunks,
             duration,
@@ -241,7 +241,6 @@ pub enum BlendMode {
     Luminosity = 15,
 }
 
-
 pub struct LayerChunk {
     pub flags: LayerFlags,
     pub layer_type: LayerType,
@@ -307,7 +306,8 @@ impl ChunkData for CelChunk {
             2 + // y
             1 + // opacity
             2 + // cel type
-            7; // for future use
+            2 + // z-index
+            5; // for future use
 
         let data_size = match self.cel_type {
             CelType::Raw => 2 + 2 + self.data.len() as DWORD,
@@ -328,8 +328,9 @@ impl ChunkData for CelChunk {
         write_short(writer, self.y)?;
         write_byte(writer, self.opacity)?;
         write_word(writer, self.cel_type as WORD)?;
-        writer.write_all(&[0; 7])?; // for future use
-        
+        write_short(writer, self.z_index)?;
+        writer.write_all(&[0; 5])?; // for future use
+
         match self.cel_type {
             CelType::Raw => {
                 write_word(writer, self.width)?;

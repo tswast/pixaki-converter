@@ -93,6 +93,13 @@ fn main() -> std::io::Result<()> {
         .map(|c| (c.identifier.clone(), c))
         .collect();
 
+    // Determine the image directory
+    let image_dir = if cli.pixaki_path.join("images").join("drawings").is_dir() {
+        cli.pixaki_path.join("images").join("drawings")
+    } else {
+        cli.pixaki_path
+    };
+
     // 6. Loop through frames and write FrameHeader and CelChunks
     for frame_index in 0..num_frames {
         let mut cel_chunks_for_frame = Vec::new();
@@ -106,10 +113,7 @@ fn main() -> std::io::Result<()> {
 
                 if in_range {
                     if let Some(cel_info) = cel_map.get(&clip.item_identifier) {
-                        let image_path = cli
-                            .pixaki_path
-                            .join("images/drawings")
-                            .join(format!("{}.png", cel_info.identifier));
+                        let image_path = image_dir.join(format!("{}.png", cel_info.identifier));
 
                         if let Ok(img) = image::open(&image_path) {
                             let rgba_img = img.to_rgba8();
@@ -121,12 +125,14 @@ fn main() -> std::io::Result<()> {
                                 y: cel_info.frame[0][1] as i16,
                                 opacity: 255,
                                 cel_type: CelType::Compressed,
-                                z_index: 0,
+                                z_index: layer_index as i16,
                                 width: img_width as u16,
                                 height: img_height as u16,
                                 data: rgba_img.into_raw(),
                             };
                             cel_chunks_for_frame.push(cel_chunk);
+                        } else {
+                            eprintln!("Failed to load image: {:?}", image_path);
                         }
                     }
                 }
