@@ -1,0 +1,286 @@
+{
+    "Version": 2,
+    "Id": "b0e35b188db847a789b7b8d1dc899ffb",
+    "Name": "animation",
+    "Width": 4,
+    "Height": 8,
+    "Type": 1,
+    "Clips": [
+        {
+            "Id": "7fda2e0097db41d98a9de5e6d19cbe83",
+            "Name": "Clip 1",
+            "Frames": [
+                {
+                    "Id": "779d8bf0b2944c3f9c8791ca0a4c8511",
+                    "Delay": 0.3,
+                    "Layers": [
+                        {
+                            "Id": "25ca5d0ad26443d18cda7309c21333cd",
+                            "Name": "Layer 1",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": false,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1,
+                            "_historyJson": "{\"Actions\":[{\"Tool\":20,\"ColorIndexes\":[],\"Meta\":\"{\\\"Rect\\\":{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":3,\\\"Y\\\":7}},\\\"RectSource\\\":{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":0,\\\"Y\\\":0}},\\\"Pixels\\\":\\\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAADElEQVQIHWNgGBwAAACIAAHYYIFgAAAAAElFTkSuQmCC\\\"}\",\"Positions\":\"\",\"Colors\":\"\",\"Invalid\":false},{\"Tool\":20,\"ColorIndexes\":[],\"Meta\":\"{\\\"Rect\\\":{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":3,\\\"Y\\\":7}},\\\"RectSource\\\":{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":0,\\\"Y\\\":0}},\\\"Pixels\\\":\\\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAADElEQVQIHWNgGBwAAACIAAHYYIFgAAAAAElFTkSuQmCC\\\"}\",\"Positions\":\"\",\"Colors\":\"\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAFAAIABAABAAQAAQAFAAEABgACAAYA\",\"Colors\":\"2t7d/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AAACAAAAAwAAAAQAAQADAAEABAA=\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAEAAIABQACAAYA\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAHAAEABwABAAYA\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQAFAA==\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgADAAMAAwACAAIAAgABAAMAAgADAAEAAgAAAAEAAQABAAIAAQAAAA==\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AAABAAAAAAA=\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0,0,0,0,0],\"Positions\":\"AAAEAAAAAwAAAAIAAAABAAAAAAA=\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0,0,0,0,0,0,0,0,0,0],\"Positions\":\"AgADAAIABAADAAMAAgACAAMAAgACAAEAAwABAAEAAAABAAEAAgAAAA==\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAEAAIAAwACAAIAAgABAAEAAAA=\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQABAA==\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAAAA==\",\"Colors\":\"FqiE/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AwAGAAIABgABAAYAAAAGAAAABwA=\",\"Colors\":\"FjGo/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAHAA==\",\"Colors\":\"FjGo/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQAHAA==\",\"Colors\":\"FjGo/w==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0,0],\"Positions\":\"AAAGAAAABwA=\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AAAGAA==\",\"Colors\":\"FjGo/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAEAAEABAABAAMAAQACAAIAAwA=\",\"Colors\":\"gUCn/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgACAA==\",\"Colors\":\"gUCn/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgABAAIAAAABAAEAAQAAAA==\",\"Colors\":\"v5Ax/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AwAAAA==\",\"Colors\":\"Uz0R/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAAAA==\",\"Colors\":\"Uz0R/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQAAAA==\",\"Colors\":\"Uz0R/w==\",\"Invalid\":false},{\"Tool\":20,\"ColorIndexes\":[],\"Meta\":\"{\\\"Rect\\\":{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":3,\\\"Y\\\":7}},\\\"RectSource\\\":{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":0,\\\"Y\\\":0}},\\\"Pixels\\\":\\\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAARUlEQVQIHWNgAAIlveD/IAxiM8IYIA4CtAb+ZwBhIGABEU0fPEEUQx3DegYmMAuJwBAAy/1fyPEfhEEcRhARHx4A5oDYACpGEtbL4qGvAAAAAElFTkSuQmCC\\\"}\",\"Positions\":\"\",\"Colors\":\"\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAAAAEAAAA=\",\"Colors\":\"/6EI/w==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0],\"Positions\":\"AwAAAA==\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0,0,0,0,0,0],\"Positions\":\"AwAGAAIABgABAAYAAAAGAAEABwACAAcA\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":1,\"ColorIndexes\":[],\"Positions\":\"\",\"Colors\":\"\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAGAAEABgA=\",\"Colors\":\"AIVR/w==\",\"Invalid\":false},{\"Tool\":10,\"ColorIndexes\":[],\"Meta\":\"{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":3,\\\"Y\\\":7}}\",\"Positions\":\"AgAAAAIAAQA=\",\"Colors\":\"\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0],\"Positions\":\"AQABAA==\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":10,\"ColorIndexes\":[],\"Meta\":\"{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":3,\\\"Y\\\":7}}\",\"Positions\":\"AQAEAAEAAwA=\",\"Colors\":\"\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAAAA==\",\"Colors\":\"/6EI/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQAAAA==\",\"Colors\":\"/6EI/w==\",\"Invalid\":false}],\"Index\":37,\"_source\":\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAADElEQVQIHWNgGBwAAACIAAHYYIFgAAAAAElFTkSuQmCC\"}"
+                        },
+                        {
+                            "Id": "3f2ee74e51554de596adc8a8b8ab398f",
+                            "Name": "Layer 3",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": false,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1,
+                            "_historyJson": "{\"Actions\":[{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AwAAAAIAAAA=\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":10,\"ColorIndexes\":[],\"Meta\":\"{\\\"From\\\":{\\\"X\\\":0,\\\"Y\\\":0},\\\"To\\\":{\\\"X\\\":3,\\\"Y\\\":7}}\",\"Positions\":\"AQAAAAEAAQA=\",\"Colors\":\"\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0],\"Positions\":\"AQABAA==\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":1,\"ColorIndexes\":[],\"Positions\":\"\",\"Colors\":\"\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQABAA==\",\"Colors\":\"/6EI/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AAAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0],\"Positions\":\"AwABAA==\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0],\"Positions\":\"AAAAAA==\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0,0,0],\"Positions\":\"AgAAAAEAAAACAAEA\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AwAAAAIAAAABAAAA\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false}],\"Index\":13,\"_source\":\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAADElEQVQIHWNgGBwAAACIAAHYYIFgAAAAAElFTkSuQmCC\"}"
+                        },
+                        {
+                            "Id": "8274eaf8ada54d9a989fd6d6a0de24b7",
+                            "Name": "Layer 2",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": false,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1,
+                            "_historyJson": "{\"Actions\":[{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AwAGAAIABgABAAYAAQAHAAAABgA=\",\"Colors\":\"Ii5T/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAHAA==\",\"Colors\":\"Ii5T/w==\",\"Invalid\":false}],\"Index\":2,\"_source\":\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAADElEQVQIHWNgGBwAAACIAAHYYIFgAAAAAElFTkSuQmCC\"}"
+                        }
+                    ],
+                    "LayerGroups": [
+                        {
+                            "Id": "46574cfe0b5c401ebc7e847c6e63070f",
+                            "Name": "Group 1",
+                            "Index": 0,
+                            "Hidden": false,
+                            "Collapsed": false,
+                            "Layers": [
+                                "25ca5d0ad26443d18cda7309c21333cd",
+                                "3f2ee74e51554de596adc8a8b8ab398f"
+                            ]
+                        }
+                    ],
+                    "ActiveLayerIndex": 1
+                },
+                {
+                    "Id": "4a71304e5e744098b5ba6f3594f1789e",
+                    "Delay": 0.3,
+                    "Layers": [
+                        {
+                            "Id": "22dec6a8385b4309b986375028950151",
+                            "Name": "Layer 1",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": true,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1
+                        },
+                        {
+                            "Id": "c6e9aa834f6541adbf84e97249c98da1",
+                            "Name": "Layer 3",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": false,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1,
+                            "_historyJson": "{\"Actions\":[{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AwABAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgABAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgACAA==\",\"Colors\":\"/6EI/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQACAA==\",\"Colors\":\"/6EI/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQADAA==\",\"Colors\":\"/6EI/w==\",\"Invalid\":false}],\"Index\":5,\"_source\":\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAAEklEQVQIHWNgoBv4v5DjP07LAEnFAqh0LjIlAAAAAElFTkSuQmCC\"}"
+                        },
+                        {
+                            "Id": "72bb4cdad2b14ed9a86a6ec073dcdad9",
+                            "Name": "Layer 2",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": true,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1
+                        }
+                    ],
+                    "LayerGroups": [
+                        {
+                            "Id": "46574cfe0b5c401ebc7e847c6e63070f",
+                            "Name": "Group 1",
+                            "Index": 0,
+                            "Hidden": false,
+                            "Collapsed": false,
+                            "Layers": [
+                                "22dec6a8385b4309b986375028950151",
+                                "c6e9aa834f6541adbf84e97249c98da1"
+                            ]
+                        }
+                    ],
+                    "ActiveLayerIndex": 1
+                },
+                {
+                    "Id": "6f348dfdc7be4f3cb7d2b008049a907f",
+                    "Delay": 0.3,
+                    "Layers": [
+                        {
+                            "Id": "ba2244e5a75643968bf916b6091d9006",
+                            "Name": "Layer 1",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": true,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1
+                        },
+                        {
+                            "Id": "3ec2ae43bb7d4ab688bfa778a324c3c5",
+                            "Name": "Layer 3",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": false,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1,
+                            "_historyJson": "{\"Actions\":[{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AgAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AAAAAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQACAA==\",\"Colors\":\"/6EI/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AAABAA==\",\"Colors\":\"/6EI/w==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQACAA==\",\"Colors\":\"gnWa/w==\",\"Invalid\":false}],\"Index\":6,\"_source\":\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAAEklEQVQIHWNgoBv4v5DjP07LAEnFAqh0LjIlAAAAAElFTkSuQmCC\"}"
+                        },
+                        {
+                            "Id": "79c9ffd8cd5742078044bc5627389782",
+                            "Name": "Layer 2",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": true,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1
+                        }
+                    ],
+                    "LayerGroups": [
+                        {
+                            "Id": "46574cfe0b5c401ebc7e847c6e63070f",
+                            "Name": "Group 1",
+                            "Index": 0,
+                            "Hidden": false,
+                            "Collapsed": false,
+                            "Layers": [
+                                "ba2244e5a75643968bf916b6091d9006",
+                                "3ec2ae43bb7d4ab688bfa778a324c3c5"
+                            ]
+                        }
+                    ],
+                    "ActiveLayerIndex": 1
+                },
+                {
+                    "Id": "971022c0019b434b9f330826d860bf85",
+                    "Delay": 0.3,
+                    "Layers": [
+                        {
+                            "Id": "cbdac45b5b5246f88b64d0951cec0930",
+                            "Name": "Layer 1",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": true,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1
+                        },
+                        {
+                            "Id": "6ae547bfd5474c0a8ca8deaa9ccf51bb",
+                            "Name": "Layer 3",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": false,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1,
+                            "_historyJson": "{\"Actions\":[{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AQACAA==\",\"Colors\":\"gnWa/w==\",\"Invalid\":false},{\"Tool\":2,\"ColorIndexes\":[0,0],\"Positions\":\"AAABAAAAAAA=\",\"Colors\":\"AAAAAA==\",\"Invalid\":false},{\"Tool\":0,\"ColorIndexes\":[],\"Positions\":\"AwABAA==\",\"Colors\":\"X1dQ/w==\",\"Invalid\":false}],\"Index\":3,\"_source\":\"iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAAIUlEQVQIHWNgoBX4v5DjP8xsJmQOSJAxPjwALrtw5QZGAO1GCVLJJjzPAAAAAElFTkSuQmCC\"}"
+                        },
+                        {
+                            "Id": "5fa3474ecc8c46098b0f9b35244538c0",
+                            "Name": "Layer 2",
+                            "Opacity": 1.0,
+                            "Transparency": -1.0,
+                            "Hidden": false,
+                            "Linked": true,
+                            "Outline": 0,
+                            "Lock": 0,
+                            "Sx": 0,
+                            "Sy": 0,
+                            "Scripts": [],
+                            "Version": 1
+                        }
+                    ],
+                    "LayerGroups": [
+                        {
+                            "Id": "46574cfe0b5c401ebc7e847c6e63070f",
+                            "Name": "Group 1",
+                            "Index": 0,
+                            "Hidden": false,
+                            "Collapsed": false,
+                            "Layers": [
+                                "cbdac45b5b5246f88b64d0951cec0930",
+                                "6ae547bfd5474c0a8ca8deaa9ccf51bb"
+                            ]
+                        }
+                    ],
+                    "ActiveLayerIndex": 1
+                }
+            ],
+            "LayerTypes": [
+                1,
+                1,
+                1
+            ],
+            "ActiveFrameIndex": 3
+        }
+    ],
+    "Background": true,
+    "BackgroundColor": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 0.0
+    },
+    "TileMode": false,
+    "TileFade": 50,
+    "ActiveClipIndex": 0
+}
