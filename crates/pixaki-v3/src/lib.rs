@@ -4,10 +4,36 @@ use serde::Deserialize;
 #[serde(rename_all = "camelCase")]
 pub struct Document {
     pub sprites: Vec<Sprite>,
-    pub palette: Option<serde_json::Value>,
-    pub grid_settings: Option<serde_json::Value>,
+    pub palette: Option<Palette>,
+    pub grid_settings: Option<GridSettings>,
     pub animation_speed: Option<f64>,
     pub primary_sprite_identifier: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Palette {
+    pub name: Option<String>,
+    pub identifier: Option<String>,
+    pub colors: Vec<Color>,
+    pub selected_color_index: Option<usize>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Color {
+    pub hue: f64,
+    pub saturation: f64,
+    pub brightness: f64,
+    pub alpha: f64,
+}
+
+#[derive(Debug, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct GridSettings {
+    pub color: Option<Color>,
+    pub size: Option<[u32; 2]>,
+    pub show_grid: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -66,7 +92,7 @@ pub struct Cel {
     #[serde(rename = "isVisible")]
     pub is_visible: Option<bool>,
     pub requires_trim: Option<bool>,
-    pub container_size: Option<Vec<f64>>,
+    pub container_size: Option<[f64; 2]>,
 }
 
 #[cfg(test)]
