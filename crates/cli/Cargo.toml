@@ -10,8 +10,17 @@ pixaki-v2 = { path = "../pixaki-v2" }
 pixaki-v3 = { path = "../pixaki-v3" }
 pixaki-v2-converter = { path = "../pixaki-v2-converter" }
 pixaki-v3-converter = { path = "../pixaki-v3-converter" }
+pixel-studio-pro-v2 = { path = "../pixel-studio-pro-v2" }
+pixel-studio-pro-v2-converter = { path = "../pixel-studio-pro-v2-converter" }
 aseprite-converter = { path = "../aseprite-converter" }
 serde_json = "1.0"
 plist = "1.6"
 anyhow = "1.0"
 aseprite = { package = "aseprite-io", version = "0.1" }
+base64 = "0.22.1"
+image = "0.25.10"
+serde = { version = "1.0.228", features = ["derive"] }
+
+[dev-dependencies]
+base64 = "0.22.1"
+image = "0.25.10"
