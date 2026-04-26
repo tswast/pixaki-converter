@@ -124,12 +124,13 @@ mod tests {
                             is_visible: true,
                             opacity: 1.0,
                             blend_mode: Some("normal".to_string()),
-                            clips: vec![]
+                            ..Default::default()
                         }
                     ],
-                    cels: vec![]
+                    ..Default::default()
                 }
-            ]
+            ],
+            ..Default::default()
         };
 
         let result = convert(doc_v3, Path::new(".")).unwrap();

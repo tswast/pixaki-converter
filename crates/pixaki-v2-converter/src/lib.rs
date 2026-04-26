@@ -84,12 +84,16 @@ mod tests {
                                     alpha: 1.0,
                                     image_filename: "non_existent.png".to_string(),
                                     visible: true,
+                                    ..Default::default()
                                 }
-                            ]
+                            ],
+                            ..Default::default()
                         }
-                    ]
+                    ],
+                    ..Default::default()
                 }
-            ]
+            ],
+            ..Default::default()
         };
 
         let result = convert(doc_v2, Path::new(".")).unwrap();
