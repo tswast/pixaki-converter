@@ -24,3 +24,6 @@ serde = { version = "1.0.228", features = ["derive"] }
 [dev-dependencies]
 base64 = "0.22.1"
 image = "0.25.10"
+
+[features]
+image = ["pixel-art/image"]

@@ -73,3 +73,22 @@ mod tests {
         assert_eq!(doc.height, 10);
     }
 }
+
+#[cfg(feature = "image")]
+impl From<Image> for image::RgbaImage {
+    fn from(img: Image) -> Self {
+        image::RgbaImage::from_vec(img.width as u32, img.height as u32, img.rgba)
+            .expect("Buffer size should match dimensions")
+    }
+}
+
+#[cfg(feature = "image")]
+impl From<image::RgbaImage> for Image {
+    fn from(img: image::RgbaImage) -> Self {
+        Self {
+            width: img.width().try_into().expect("image width exceeds u16"),
+            height: img.height().try_into().expect("image height exceeds u16"),
+            rgba: img.into_raw(),
+        }
+    }
+}
