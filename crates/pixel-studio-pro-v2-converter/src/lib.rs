@@ -207,14 +207,36 @@ pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
 
                                                     if dst_x >= 0 && dst_y >= 0 && (dst_x as u32) < img_width && (dst_y as u32) < img_height {
                                                         let p = rgba_patch.get_pixel(x, y);
-                                                        // over blend or just copy if destination is transparent
-                                                        if p[3] > 0 {
-                                                            final_img.put_pixel(dst_x as u32, dst_y as u32, *p);
-                                                            has_data = true;
-                                                        } else if action.tool == 6 {
-                                                            // Tool 6 (Move) often includes an erase operation in its rect footprint
-                                                            final_img.put_pixel(dst_x as u32, dst_y as u32, Rgba([0, 0, 0, 0]));
-                                                            has_data = true;
+
+                                                        // Just straight alpha blend all tools over the canvas. Tool 6 and 21 include eraser pixels
+                                                        // (alpha 0) that need to zero out the destination. Tool 20 (paste) should blend on top.
+
+                                                        if action.tool == 6 || action.tool == 21 {
+                                                            if p[3] == 0 {
+                                                                final_img.put_pixel(dst_x as u32, dst_y as u32, Rgba([0, 0, 0, 0]));
+                                                                has_data = true;
+                                                            } else {
+                                                                // Move/Cut completely replaces the destination with the moved pixels
+                                                                final_img.put_pixel(dst_x as u32, dst_y as u32, *p);
+                                                                has_data = true;
+                                                            }
+                                                        } else if action.tool == 20 {
+                                                            if p[3] > 0 {
+                                                                // Blend (over)
+                                                                let bg_p = final_img.get_pixel(dst_x as u32, dst_y as u32);
+                                                                let a1 = p[3] as f32 / 255.0;
+                                                                let a2 = bg_p[3] as f32 / 255.0;
+                                                                let a = a1 + a2 * (1.0 - a1);
+                                                                if a > 0.0 {
+                                                                    let r = ((p[0] as f32 * a1 + bg_p[0] as f32 * a2 * (1.0 - a1)) / a).round() as u8;
+                                                                    let g = ((p[1] as f32 * a1 + bg_p[1] as f32 * a2 * (1.0 - a1)) / a).round() as u8;
+                                                                    let b = ((p[2] as f32 * a1 + bg_p[2] as f32 * a2 * (1.0 - a1)) / a).round() as u8;
+                                                                    final_img.put_pixel(dst_x as u32, dst_y as u32, Rgba([r, g, b, (a * 255.0).round() as u8]));
+                                                                } else {
+                                                                    final_img.put_pixel(dst_x as u32, dst_y as u32, Rgba([0, 0, 0, 0]));
+                                                                }
+                                                                has_data = true;
+                                                            }
                                                         }
                                                     }
                                                 }
