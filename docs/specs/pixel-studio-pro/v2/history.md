@@ -42,4 +42,4 @@ Different tools utilize the properties of the Action object in specific ways:
     * `Pixels`: Base64 encoded PNG image data of the specific pasted region.
 
 ### Encoding
-`Positions` and `Colors` use a custom Base64 binary encoding to store coordinate and color arrays efficiently. `Positions` encodes a sequence of 16-bit little-endian unsigned integers, forming `(X, Y)` coordinate pairs.
+`Positions` and `Colors` use a custom Base64 binary encoding to store coordinate and color arrays efficiently. `Positions` encodes a sequence of 16-bit little-endian signed integers forming `(X, Y)` coordinate pairs, while `Colors` encodes a sequence of 4-byte RGBA values.
