@@ -25,6 +25,35 @@ struct PointData {
     y: i32,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum ToolType {
+    Pen,
+    Eraser,
+    Selection,
+    Bucket,
+    LineShape,
+    Move,
+    PasteImport,
+    Cut,
+    Unknown(u32),
+}
+
+impl From<u32> for ToolType {
+    fn from(value: u32) -> Self {
+        match value {
+            0 => ToolType::Pen,
+            1 => ToolType::Eraser,
+            2 => ToolType::Selection,
+            3 => ToolType::Bucket,
+            6 => ToolType::LineShape,
+            10 => ToolType::Move,
+            20 => ToolType::PasteImport,
+            21 => ToolType::Cut,
+            _ => ToolType::Unknown(value),
+        }
+    }
+}
+
 fn flood_fill(img: &mut RgbaImage, x: u32, y: u32, fill_color: Rgba<u8>) {
     if x >= img.width() || y >= img.height() {
         return;
@@ -187,34 +216,54 @@ pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                     }
                 }
 
-                // Second pass: replay actions onto the sized canvas
-                for action in history.actions.iter().take(history_index) {
-                    if action.tool == 20 || action.tool == 21 || action.tool == 6 {
-                        // Import/Paste/Move
-                        if let Some(meta_str) = &action.meta {
-                            if let Ok(meta) = serde_json::from_str::<MetaData>(meta_str) {
-                                if let (Some(pixels_b64), Some(rect)) = (meta.pixels, meta.rect) {
-                                    if let Ok(img_data) = b64.decode(&pixels_b64) {
-                                        if let Ok(img) = image::load_from_memory(&img_data) {
-                                            let rgba_patch = img.to_rgba8();
-                                            let start_x = rect.from.x - min_x;
-                                            let start_y = rect.from.y - min_y;
+                // Second pass: replay actions onto the sized canvas if there was no valid source image
+                if !has_data {
+                    // Actions must be replayed up to index. Actually, history.index can sometimes point past the end.
+                    let replay_count = std::cmp::min(history.index as usize, history.actions.len());
+                    for action in history.actions.iter().take(replay_count) {
+                        let tool_type = ToolType::from(action.tool);
+                        match tool_type {
+                            ToolType::PasteImport | ToolType::Cut | ToolType::Move | ToolType::LineShape => {
+                                // Import/Paste/Move/LineShape
+                                if let Some(meta_str) = &action.meta {
+                                    if let Ok(meta) = serde_json::from_str::<MetaData>(meta_str) {
+                                        if let (Some(pixels_b64), Some(rect)) = (&meta.pixels, &meta.rect) {
+                                            if let Ok(img_data) = b64.decode(pixels_b64) {
+                                                if let Ok(img) = image::load_from_memory(&img_data) {
+                                                    let rgba_patch = img.to_rgba8();
+                                                    let start_x = rect.from.x - min_x;
+                                                    let start_y = rect.from.y - min_y;
 
-                                            for y in 0..rgba_patch.height() {
-                                                for x in 0..rgba_patch.width() {
-                                                    let dst_x = start_x + (x as i32);
-                                                    let dst_y = start_y + (y as i32);
+                                                    for y in 0..rgba_patch.height() {
+                                                        for x in 0..rgba_patch.width() {
+                                                            let dst_x = start_x + (x as i32);
+                                                            let dst_y = start_y + (y as i32);
 
-                                                    if dst_x >= 0 && dst_y >= 0 && (dst_x as u32) < img_width && (dst_y as u32) < img_height {
-                                                        let p = rgba_patch.get_pixel(x, y);
-                                                        // over blend or just copy if destination is transparent
-                                                        if p[3] > 0 {
-                                                            final_img.put_pixel(dst_x as u32, dst_y as u32, *p);
-                                                            has_data = true;
-                                                        } else if action.tool == 6 {
-                                                            // Tool 6 (Move) often includes an erase operation in its rect footprint
-                                                            final_img.put_pixel(dst_x as u32, dst_y as u32, Rgba([0, 0, 0, 0]));
-                                                            has_data = true;
+                                                            if dst_x >= 0 && dst_y >= 0 && (dst_x as u32) < img_width && (dst_y as u32) < img_height {
+                                                                let p = rgba_patch.get_pixel(x, y);
+
+                                                                // Just straight alpha blend all tools over the canvas. Tool 6 and 21 include eraser pixels
+                                                                // (alpha 0) that need to zero out the destination. Tool 20 (paste) should blend on top.
+
+                                                                if tool_type == ToolType::Move || tool_type == ToolType::Cut || tool_type == ToolType::LineShape {
+                                                                    if p[3] == 0 {
+                                                                        final_img.put_pixel(dst_x as u32, dst_y as u32, Rgba([0, 0, 0, 0]));
+                                                                        has_data = true;
+                                                                    } else {
+                                                                        // Move/Cut completely replaces the destination with the moved pixels
+                                                                        final_img.put_pixel(dst_x as u32, dst_y as u32, *p);
+                                                                        has_data = true;
+                                                                    }
+                                                                } else if tool_type == ToolType::PasteImport {
+                                                                    if p[3] > 0 {
+                                                                        use image::Pixel;
+                                                                        let mut bg_p = *final_img.get_pixel(dst_x as u32, dst_y as u32);
+                                                                        bg_p.blend(p);
+                                                                        final_img.put_pixel(dst_x as u32, dst_y as u32, bg_p);
+                                                                        has_data = true;
+                                                                    }
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -222,47 +271,52 @@ pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                                         }
                                     }
                                 }
-                            }
-                        }
-                    } else if action.tool == 0 || action.tool == 3 {
-                        // Pen or Bucket Fill
-                        let pos_bytes = b64.decode(&action.positions).unwrap_or_default();
-                        let col_bytes = b64.decode(&action.colors).unwrap_or_default();
+                            },
+                            ToolType::Pen | ToolType::Bucket => {
+                                // Pen or Bucket Fill
+                                let pos_bytes = b64.decode(&action.positions).unwrap_or_default();
+                                let col_bytes = b64.decode(&action.colors).unwrap_or_default();
 
-                        if col_bytes.len() >= 4 {
-                            let color = Rgba([col_bytes[0], col_bytes[1], col_bytes[2], col_bytes[3]]);
-                            for j in (0..pos_bytes.len()).step_by(4) {
-                                if j + 3 < pos_bytes.len() {
-                                    let px = i16::from_le_bytes([pos_bytes[j], pos_bytes[j + 1]]) as i32 - min_x;
-                                    let py = i16::from_le_bytes([pos_bytes[j + 2], pos_bytes[j + 3]]) as i32 - min_y;
+                                if col_bytes.len() >= 4 {
+                                    let color = Rgba([col_bytes[0], col_bytes[1], col_bytes[2], col_bytes[3]]);
+                                    for j in (0..pos_bytes.len()).step_by(4) {
+                                        if j + 3 < pos_bytes.len() {
+                                            let px = i16::from_le_bytes([pos_bytes[j], pos_bytes[j + 1]]) as i32 - min_x;
+                                            let py = i16::from_le_bytes([pos_bytes[j + 2], pos_bytes[j + 3]]) as i32 - min_y;
 
-                                    if px >= 0 && py >= 0 && (px as u32) < img_width && (py as u32) < img_height {
-                                        if action.tool == 0 {
-                                            final_img.put_pixel(px as u32, py as u32, color);
-                                        } else {
-                                            flood_fill(&mut final_img, px as u32, py as u32, color);
+                                            if px >= 0 && py >= 0 && (px as u32) < img_width && (py as u32) < img_height {
+                                                if tool_type == ToolType::Pen {
+                                                    final_img.put_pixel(px as u32, py as u32, color);
+                                                } else {
+                                                    flood_fill(&mut final_img, px as u32, py as u32, color);
+                                                }
+                                                has_data = true;
+                                            }
                                         }
-                                        has_data = true;
                                     }
                                 }
-                            }
-                        }
-                    } else if action.tool == 1 || action.tool == 2 {
-                        // Eraser or Bucket Erase
-                        let pos_bytes = b64.decode(&action.positions).unwrap_or_default();
-                        for j in (0..pos_bytes.len()).step_by(4) {
-                            if j + 3 < pos_bytes.len() {
-                                let px = i16::from_le_bytes([pos_bytes[j], pos_bytes[j + 1]]) as i32 - min_x;
-                                let py = i16::from_le_bytes([pos_bytes[j + 2], pos_bytes[j + 3]]) as i32 - min_y;
+                            },
+                            ToolType::Eraser | ToolType::Selection => {
+                                // Eraser or Bucket Erase
+                                let pos_bytes = b64.decode(&action.positions).unwrap_or_default();
+                                for j in (0..pos_bytes.len()).step_by(4) {
+                                    if j + 3 < pos_bytes.len() {
+                                        let px = i16::from_le_bytes([pos_bytes[j], pos_bytes[j + 1]]) as i32 - min_x;
+                                        let py = i16::from_le_bytes([pos_bytes[j + 2], pos_bytes[j + 3]]) as i32 - min_y;
 
-                                if px >= 0 && py >= 0 && (px as u32) < img_width && (py as u32) < img_height {
-                                    if action.tool == 1 {
-                                        final_img.put_pixel(px as u32, py as u32, Rgba([0, 0, 0, 0]));
-                                    } else {
-                                        flood_fill(&mut final_img, px as u32, py as u32, Rgba([0, 0, 0, 0]));
+                                        if px >= 0 && py >= 0 && (px as u32) < img_width && (py as u32) < img_height {
+                                            if tool_type == ToolType::Eraser {
+                                                final_img.put_pixel(px as u32, py as u32, Rgba([0, 0, 0, 0]));
+                                            } else {
+                                                flood_fill(&mut final_img, px as u32, py as u32, Rgba([0, 0, 0, 0]));
+                                            }
+                                            has_data = true;
+                                        }
                                     }
-                                    has_data = true;
                                 }
+                            },
+                            ToolType::Unknown(_) => {
+                                // Ignore unknown tools
                             }
                         }
                     }
