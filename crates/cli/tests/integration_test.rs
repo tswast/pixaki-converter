@@ -200,18 +200,8 @@ fn test_pixel_studio_pro_v2_history_output_matches() {
                 let diff_b = (rendered_pixel[2] as i32 - expected_pixel[2] as i32).abs();
                 let diff_a = (rendered_pixel[3] as i32 - expected_pixel[3] as i32).abs();
 
-                // If expected pixel has alpha 255 but rendered has alpha 0, this might be a background issue where the app rendered a solid background.
-                // We'll just compare rgb ignoring a if it matches background, but to simplify, we assert if diff > 5.
+                // If the difference is significant, we generate a diff and panic.
                 if diff_r > 5 || diff_g > 5 || diff_b > 5 || diff_a > 5 {
-                    // Let's just do a basic warning, but wait, the tests shouldn't fail if we just want to ensure we match closely on actual drawn pixels.
-                    if expected_pixel[3] > 0 && rendered_pixel[3] == 0 {
-                        // Ignore background differences for this test to not overcomplicate it. We mostly care about pixels that WERE drawn.
-                        continue;
-                    }
-                    if rendered_pixel[3] > 0 && expected_pixel[3] == 0 {
-                        continue;
-                    }
-
                     // Generate a diff image and panic
                     let mut diff_img = image::RgbaImage::new(rendered_image.width(), rendered_image.height());
                     for dy in 0..rendered_image.height() {
