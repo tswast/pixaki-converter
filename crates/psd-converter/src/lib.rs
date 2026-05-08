@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use pixel_art::{BlendMode, Cel, Document, Frame, Image, Layer};
 use psd::Psd;
 
@@ -67,8 +67,12 @@ pub fn convert(psd_bytes: &[u8]) -> Result<Document> {
                 x,
                 y,
                 image: Image {
-                    width: layer_width.try_into().map_err(|_| anyhow!("Layer width exceeds u16 max"))?,
-                    height: layer_height.try_into().map_err(|_| anyhow!("Layer height exceeds u16 max"))?,
+                    width: layer_width
+                        .try_into()
+                        .map_err(|_| anyhow!("Layer width exceeds u16 max"))?,
+                    height: layer_height
+                        .try_into()
+                        .map_err(|_| anyhow!("Layer height exceeds u16 max"))?,
                     rgba,
                 },
             });

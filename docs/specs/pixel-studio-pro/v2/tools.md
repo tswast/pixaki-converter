@@ -240,6 +240,14 @@ def apply_rotate_90(pixels, action):
 ```
 
 ### RotateRect (Arbitrary Angle)
+
+`Position[2]` is the new Top-Left. The rotated rect's
+new top-left relative to its local coordinates is `(min_rx, min_ry)`
+In global coordinates, it starts at `rect_min_x + position.X`.
+
+The offset is essentially the difference from the original min
+coordinates.
+
 ```python
 def apply_rotate_rect(pixels, action):
     rect = ImageRect(action.Positions[0], action.Positions[1])

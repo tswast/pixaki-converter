@@ -206,7 +206,24 @@ fn calculate_bounds(
                         }
                     }
                 }
-                pixel_studio_pro_v2::Tool::PasteImage | pixel_studio_pro_v2::Tool::RotateRect => {
+                pixel_studio_pro_v2::Tool::RotateRect => {
+                    if let Some(info) = get_rotate_rect_info(action, doc_height) {
+                        if info.final_min_x < min_x {
+                            min_x = info.final_min_x;
+                        }
+                        if info.final_min_y < min_y {
+                            min_y = info.final_min_y;
+                        }
+                        if info.final_max_x > max_x {
+                            max_x = info.final_max_x;
+                        }
+                        if info.final_max_y > max_y {
+                            max_y = info.final_max_y;
+                        }
+                    }
+                }
+
+                pixel_studio_pro_v2::Tool::PasteImage => {
                     if let Some(meta_str) = &action.meta {
                         if let Ok(meta) = serde_json::from_str::<MetaData>(meta_str) {
                             if let (Some(pixels_b64), Some(rect)) = (&meta.pixels, &meta.rect) {
@@ -595,6 +612,258 @@ fn apply_transform_action(
     }
 }
 
+struct RotateRectInfo {
+    rect_min_x: i32,
+
+    rect_min_y: i32,
+
+    w: i32,
+    h: i32,
+    px3: i32,
+    py3: i32,
+
+    final_min_x: i32,
+    final_min_y: i32,
+    final_max_x: i32,
+    final_max_y: i32,
+    cos_a: f32,
+    sin_a: f32,
+    cx: f32,
+    cy: f32,
+    min_rx: f32,
+    min_ry: f32,
+    max_rx: f32,
+    max_ry: f32,
+}
+
+fn get_rotate_rect_info(
+    action: &pixel_studio_pro_v2::Action,
+    doc_height: u32,
+) -> Option<RotateRectInfo> {
+    use base64::{Engine as _, engine::general_purpose};
+    let pos_bytes = general_purpose::STANDARD
+        .decode(&action.positions)
+        .unwrap_or_default();
+
+    if pos_bytes.len() < 12 {
+        return None;
+    }
+
+    let px1 = i16::from_le_bytes([pos_bytes[0], pos_bytes[1]]) as i32;
+    let py1 = doc_height as i32 - 1 - i16::from_le_bytes([pos_bytes[2], pos_bytes[3]]) as i32;
+    let px2 = i16::from_le_bytes([pos_bytes[4], pos_bytes[5]]) as i32;
+    let py2 = doc_height as i32 - 1 - i16::from_le_bytes([pos_bytes[6], pos_bytes[7]]) as i32;
+    let px3 = i16::from_le_bytes([pos_bytes[8], pos_bytes[9]]) as i32;
+    let py3 = doc_height as i32 - 1 - i16::from_le_bytes([pos_bytes[10], pos_bytes[11]]) as i32;
+
+    let rect_min_x = px1.min(px2);
+    let rect_max_x = px1.max(px2);
+    let rect_min_y = py1.min(py2);
+    let rect_max_y = py1.max(py2);
+
+    let w = rect_max_x - rect_min_x + 1;
+    let h = rect_max_y - rect_min_y + 1;
+
+    // Bounds validation to prevent OOM
+    if w > 8192 || h > 8192 || w <= 0 || h <= 0 {
+        return None;
+    }
+
+    // Try parsing the angle
+    // Meta="0" means 0 degrees in string format. Sometimes it might be JSON in the future, so try both.
+    let angle_deg: f32 = action
+        .meta
+        .as_deref()
+        .and_then(|m| m.parse().ok())
+        .or_else(|| {
+            action.meta.as_deref().and_then(|m| {
+                serde_json::from_str::<serde_json::Value>(m)
+                    .ok()
+                    .and_then(|v| v.as_f64())
+                    .map(|f| f as f32)
+            })
+        })
+        .unwrap_or(0.0);
+
+    let angle_rad = angle_deg * std::f32::consts::PI / 180.0;
+    let cos_a = angle_rad.cos();
+    let sin_a = angle_rad.sin();
+
+    let cx = (w as f32 - 1.0) / 2.0;
+    let cy = (h as f32 - 1.0) / 2.0;
+
+    let mut min_rx = f32::MAX;
+    let mut min_ry = f32::MAX;
+    let mut max_rx = f32::MIN;
+    let mut max_ry = f32::MIN;
+
+    let corners = [
+        (0.0, 0.0),
+        (w as f32 - 1.0, 0.0),
+        (0.0, h as f32 - 1.0),
+        (w as f32 - 1.0, h as f32 - 1.0),
+    ];
+
+    for &(x, y) in &corners {
+        let rel_x = x - cx;
+        let rel_y = y - cy;
+        let rot_x = cx + rel_x * cos_a - rel_y * sin_a;
+        let rot_y = cy + rel_x * sin_a + rel_y * cos_a;
+        if rot_x < min_rx {
+            min_rx = rot_x;
+        }
+        if rot_y < min_ry {
+            min_ry = rot_y;
+        }
+        if rot_x > max_rx {
+            max_rx = rot_x;
+        }
+        if rot_y > max_ry {
+            max_ry = rot_y;
+        }
+    }
+
+    let offset_x = px3 - rect_min_x;
+    let offset_y = py3 - rect_min_y;
+
+    let final_min_x = min_rx.floor() as i32 + rect_min_x + offset_x;
+    let final_min_y = min_ry.floor() as i32 + rect_min_y + offset_y;
+    let final_max_x = max_rx.ceil() as i32 + rect_min_x + offset_x;
+    let final_max_y = max_ry.ceil() as i32 + rect_min_y + offset_y;
+
+    Some(RotateRectInfo {
+        rect_min_x,
+        rect_min_y,
+        w,
+        h,
+        px3,
+        py3,
+        final_min_x,
+        final_min_y,
+        final_max_x,
+        final_max_y,
+        cos_a,
+        sin_a,
+        cx,
+        cy,
+        min_rx,
+        min_ry,
+        max_rx,
+        max_ry,
+    })
+}
+
+fn apply_rotate_rect_action(
+    action: &pixel_studio_pro_v2::Action,
+    final_img: &mut RgbaImage,
+    min_x: i32,
+    min_y: i32,
+    img_width: u32,
+    img_height: u32,
+    doc_height: u32,
+    has_data: &mut bool,
+) {
+    let Some(info) = get_rotate_rect_info(action, doc_height) else {
+        return;
+    };
+
+    use base64::{Engine as _, engine::general_purpose};
+    let pos_bytes = general_purpose::STANDARD
+        .decode(&action.positions)
+        .unwrap_or_default();
+
+    // Extract source pixels
+    let mut extracted_pixels = vec![Rgba([0, 0, 0, 0]); (info.w * info.h) as usize];
+
+    let count = pos_bytes.len() / 4;
+
+    if count == 3 {
+        for y in 0..info.h {
+            for x in 0..info.w {
+                let src_x = info.rect_min_x + x - min_x;
+                let src_y = info.rect_min_y + y - min_y;
+
+                if src_x >= 0
+                    && src_y >= 0
+                    && (src_x as u32) < img_width
+                    && (src_y as u32) < img_height
+                {
+                    let p = *final_img.get_pixel(src_x as u32, src_y as u32);
+                    extracted_pixels[(x + y * info.w) as usize] = p;
+                    final_img.put_pixel(src_x as u32, src_y as u32, Rgba([0, 0, 0, 0]));
+                }
+            }
+        }
+    } else {
+        for i in 3..count {
+            let idx = i * 4;
+            let px = i16::from_le_bytes([pos_bytes[idx], pos_bytes[idx + 1]]) as i32;
+            let py = doc_height as i32
+                - 1
+                - i16::from_le_bytes([pos_bytes[idx + 2], pos_bytes[idx + 3]]) as i32;
+
+            let rel_x = px - info.rect_min_x;
+            let rel_y = py - info.rect_min_y;
+
+            let src_x = px - min_x;
+            let src_y = py - min_y;
+
+            if src_x >= 0
+                && src_y >= 0
+                && (src_x as u32) < img_width
+                && (src_y as u32) < img_height
+                && rel_x >= 0
+                && rel_x < info.w
+                && rel_y >= 0
+                && rel_y < info.h
+            {
+                let p = *final_img.get_pixel(src_x as u32, src_y as u32);
+                extracted_pixels[(rel_x + rel_y * info.w) as usize] = p;
+                final_img.put_pixel(src_x as u32, src_y as u32, Rgba([0, 0, 0, 0]));
+            }
+        }
+    }
+
+    let rot_w = (info.max_rx - info.min_rx).round() as i32 + 1;
+    let rot_h = (info.max_ry - info.min_ry).round() as i32 + 1;
+
+    // Nearest neighbor rotation
+    // We map destination pixels back to source pixels
+    for ry in 0..rot_h {
+        for rx in 0..rot_w {
+            let dst_cx = info.min_rx.floor() + rx as f32;
+            let dst_cy = info.min_ry.floor() + ry as f32;
+
+            let rel_x = dst_cx - info.cx;
+            let rel_y = dst_cy - info.cy;
+
+            // inverse rotation
+            let src_x = info.cx + rel_x * info.cos_a + rel_y * info.sin_a;
+            let src_y = info.cy - rel_x * info.sin_a + rel_y * info.cos_a;
+
+            let src_x_i = src_x.round() as i32;
+            let src_y_i = src_y.round() as i32;
+
+            if src_x_i >= 0 && src_x_i < info.w && src_y_i >= 0 && src_y_i < info.h {
+                let p = extracted_pixels[(src_x_i + src_y_i * info.w) as usize];
+                if p[3] != 0 {
+                    let final_x = info.px3 + rx + info.min_rx.floor() as i32 - min_x;
+                    let final_y = info.py3 + ry + info.min_ry.floor() as i32 - min_y;
+
+                    if final_x >= 0
+                        && final_y >= 0
+                        && (final_x as u32) < img_width
+                        && (final_y as u32) < img_height
+                    {
+                        final_img.put_pixel(final_x as u32, final_y as u32, p);
+                        *has_data = true;
+                    }
+                }
+            }
+        }
+    }
+}
+
 fn apply_replace_color_action(
     action: &pixel_studio_pro_v2::Action,
     final_img: &mut RgbaImage,
@@ -692,8 +961,19 @@ fn replay_actions(
                             &mut has_data,
                         );
                     }
-                    pixel_studio_pro_v2::Tool::PasteImage
-                    | pixel_studio_pro_v2::Tool::RotateRect => {
+                    pixel_studio_pro_v2::Tool::RotateRect => {
+                        apply_rotate_rect_action(
+                            action,
+                            &mut final_img,
+                            min_x,
+                            min_y,
+                            img_width,
+                            img_height,
+                            doc_height,
+                            &mut has_data,
+                        );
+                    }
+                    pixel_studio_pro_v2::Tool::PasteImage => {
                         apply_paste_import_action(
                             tool_type,
                             action,
@@ -891,7 +1171,6 @@ pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
 
     #[test]
     fn test_psp_v2_conversion_basic() {
