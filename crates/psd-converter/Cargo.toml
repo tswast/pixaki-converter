@@ -6,4 +6,4 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.102"
 pixel-art = { version = "0.1.0", path = "../pixel-art" }
-psd = "0.3.5"
+psd = { git = "https://github.com/tswast/psd.git" }
