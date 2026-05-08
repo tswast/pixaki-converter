@@ -1,5 +1,5 @@
-use anyhow::{anyhow, Result};
-use base64::{engine::general_purpose::STANDARD as b64, Engine};
+use anyhow::{Result, anyhow};
+use base64::{Engine, engine::general_purpose::STANDARD as b64};
 use image::{Rgba, RgbaImage};
 use pixel_art::{BlendMode, Cel, Document, Frame, Image, Layer};
 use pixel_studio_pro_v2::{self, History};
@@ -71,7 +71,7 @@ fn update_bounds_from_positions(
     max_x: &mut i32,
     max_y: &mut i32,
 ) {
-    use base64::{engine::general_purpose, Engine as _};
+    use base64::{Engine as _, engine::general_purpose};
     let pos_bytes = general_purpose::STANDARD
         .decode(positions_b64)
         .unwrap_or_default();
@@ -290,7 +290,7 @@ fn apply_positions_to_image(
     doc_height: u32,
     has_data: &mut bool,
 ) {
-    use base64::{engine::general_purpose, Engine as _};
+    use base64::{Engine as _, engine::general_purpose};
     let pos_bytes = general_purpose::STANDARD
         .decode(&action.positions)
         .unwrap_or_default();
@@ -613,8 +613,6 @@ fn apply_transform_action(
 }
 
 struct RotateRectInfo {
-
-
     rect_min_x: i32,
 
     rect_min_y: i32,
@@ -642,7 +640,7 @@ fn get_rotate_rect_info(
     action: &pixel_studio_pro_v2::Action,
     doc_height: u32,
 ) -> Option<RotateRectInfo> {
-    use base64::{engine::general_purpose, Engine as _};
+    use base64::{Engine as _, engine::general_purpose};
     let pos_bytes = general_purpose::STANDARD
         .decode(&action.positions)
         .unwrap_or_default();
@@ -778,7 +776,7 @@ fn apply_rotate_rect_action(
         return;
     };
 
-    use base64::{engine::general_purpose, Engine as _};
+    use base64::{Engine as _, engine::general_purpose};
     let pos_bytes = general_purpose::STANDARD
         .decode(&action.positions)
         .unwrap_or_default();
@@ -884,7 +882,7 @@ fn apply_replace_color_action(
     img_height: u32,
     doc_height: u32,
 ) {
-    use base64::{engine::general_purpose, Engine as _};
+    use base64::{Engine as _, engine::general_purpose};
     let pos_bytes = general_purpose::STANDARD
         .decode(&action.positions)
         .unwrap_or_default();

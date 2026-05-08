@@ -199,7 +199,6 @@ fn test_pixel_studio_pro_v2_history_output_matches() {
         "history008-dotpict-eraser",
         "history009-copy-paste",
         "history010-shapes",
-
     ];
 
     for case in test_cases {
