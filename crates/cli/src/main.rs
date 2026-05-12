@@ -132,6 +132,6 @@ fn handle_psd_format(psd_path: &Path) -> Result<pixel_art::Document> {
 fn handle_aseprite_format(ase_path: &Path) -> Result<pixel_art::Document> {
     let file = fs::File::open(ase_path)?;
     let aseprite_file = aseprite::AsepriteFile::from_reader(file)
-        .map_err(|e| anyhow!("Failed to parse .aseprite file: {:?}", e))?;
+        .context("Failed to parse .aseprite file")?;
     aseprite_converter::reader::parse(aseprite_file)
 }
