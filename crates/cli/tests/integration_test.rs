@@ -132,7 +132,7 @@ fn test_image_export_fox_smile() {
         !doc.cels.is_empty(),
         "Document should have at least one cel"
     );
-    let first_cel_image = doc.cels[0].image.clone();
+    let first_cel_image = doc.images[doc.cels[0].image_index].clone();
 
     let rgba_image: image::RgbaImage = first_cel_image.into();
     assert_eq!(rgba_image.width() as u16, doc.width);
@@ -153,7 +153,7 @@ fn test_image_export_fox_walk() {
         !doc.cels.is_empty(),
         "Document should have at least one cel"
     );
-    let first_cel_image = doc.cels[0].image.clone();
+    let first_cel_image = doc.images[doc.cels[0].image_index].clone();
 
     let rgba_image: image::RgbaImage = first_cel_image.into();
     assert_eq!(rgba_image.width() as u16, doc.width);
@@ -174,7 +174,7 @@ fn test_image_export_frame_psp() {
         !doc.cels.is_empty(),
         "Document should have at least one cel"
     );
-    let first_cel_image = doc.cels[0].image.clone();
+    let first_cel_image = doc.images[doc.cels[0].image_index].clone();
 
     let rgba_image: image::RgbaImage = first_cel_image.clone().into();
     // width and height match the cel image's width and height
@@ -282,4 +282,54 @@ fn test_pixel_studio_pro_v2_history_output_matches() {
             }
         }
     }
+}
+
+#[cfg(feature = "image")]
+#[test]
+fn test_cli_aseprite_to_png() {
+    let pixaki_path = PathBuf::from("tests/data/fox_smile.pixaki");
+    let aseprite_path = PathBuf::from("tests/data/fox_smile_temp.aseprite");
+    let png_path = PathBuf::from("tests/data/fox_smile_from_aseprite.png");
+
+    // Ensure outputs don't exist
+    if aseprite_path.exists() {
+        fs::remove_file(&aseprite_path).unwrap();
+    }
+    if png_path.exists() {
+        fs::remove_file(&png_path).unwrap();
+    }
+
+    // Generate intermediate aseprite
+    let status_ase = Command::new("cargo")
+        .args([
+            "run",
+            "--",
+            pixaki_path.to_str().unwrap(),
+            aseprite_path.to_str().unwrap(),
+        ])
+        .status()
+        .expect("Failed to execute command");
+
+    assert!(status_ase.success());
+    assert!(aseprite_path.exists());
+
+    // Generate png from aseprite
+    let status_png = Command::new("cargo")
+        .args([
+            "run",
+            "--features",
+            "image",
+            "--",
+            aseprite_path.to_str().unwrap(),
+            png_path.to_str().unwrap(),
+        ])
+        .status()
+        .expect("Failed to execute command");
+
+    assert!(status_png.success());
+    assert!(png_path.exists());
+
+    // Optional: Clean up
+    fs::remove_file(&aseprite_path).unwrap();
+    fs::remove_file(&png_path).unwrap();
 }

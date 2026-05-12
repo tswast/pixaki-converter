@@ -16,6 +16,7 @@ pub fn convert(psd_bytes: &[u8]) -> Result<Document> {
 
     let mut layers = Vec::new();
     let mut cels = Vec::new();
+    let mut images = Vec::new();
 
     for (layer_index, psd_layer) in psd.layers().iter().enumerate() {
         let name = psd_layer.name().to_string();
@@ -61,20 +62,23 @@ pub fn convert(psd_bytes: &[u8]) -> Result<Document> {
             let x = psd_layer.layer_left().try_into().unwrap_or(0);
             let y = psd_layer.layer_top().try_into().unwrap_or(0);
 
+            let image_index = images.len();
+            images.push(Image {
+                width: layer_width
+                    .try_into()
+                    .map_err(|_| anyhow!("Layer width exceeds u16 max"))?,
+                height: layer_height
+                    .try_into()
+                    .map_err(|_| anyhow!("Layer height exceeds u16 max"))?,
+                rgba,
+            });
+
             cels.push(Cel {
                 frame_index: 0,
                 layer_index,
                 x,
                 y,
-                image: Image {
-                    width: layer_width
-                        .try_into()
-                        .map_err(|_| anyhow!("Layer width exceeds u16 max"))?,
-                    height: layer_height
-                        .try_into()
-                        .map_err(|_| anyhow!("Layer height exceeds u16 max"))?,
-                    rgba,
-                },
+                image_index,
             });
         }
     }
@@ -88,6 +92,7 @@ pub fn convert(psd_bytes: &[u8]) -> Result<Document> {
         layers,
         frames,
         cels,
+        images,
     })
 }
 

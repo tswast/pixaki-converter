@@ -5,6 +5,7 @@ pub struct Document {
     pub layers: Vec<Layer>,
     pub frames: Vec<Frame>,
     pub cels: Vec<Cel>,
+    pub images: Vec<Image>,
 }
 
 #[cfg(feature = "image")]
@@ -35,7 +36,12 @@ impl Document {
                 continue;
             }
 
-            let cel_img: image::RgbaImage = cel.image.clone().into();
+            let image = match self.images.get(cel.image_index) {
+                Some(img) => img,
+                None => continue,
+            };
+
+            let cel_img: image::RgbaImage = image.clone().into();
 
             // Note: simple alpha blending via overlay. Opacity/blend modes are complex to implement fully,
             // but we can apply basic overlay which handles alpha. Layer opacity is ignored in this simple
@@ -77,7 +83,12 @@ impl Document {
                 continue;
             }
 
-            let cel_img: tiny_skia::Pixmap = cel.image.clone().into();
+            let image = match self.images.get(cel.image_index) {
+                Some(img) => img,
+                None => continue,
+            };
+
+            let cel_img: tiny_skia::Pixmap = image.clone().into();
 
             let mut paint = tiny_skia::PixmapPaint::default();
             paint.opacity = layer.opacity as f32 / 255.0;
@@ -130,7 +141,7 @@ pub struct Cel {
     pub layer_index: usize,
     pub x: i16,
     pub y: i16,
-    pub image: Image,
+    pub image_index: usize,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -152,6 +163,7 @@ mod tests {
             layers: vec![],
             frames: vec![],
             cels: vec![],
+            images: vec![],
         };
         assert_eq!(doc.width, 10);
         assert_eq!(doc.height, 10);

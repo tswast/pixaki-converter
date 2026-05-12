@@ -11,6 +11,7 @@ pub fn convert(doc: pixaki_v2::Document, base_path: &Path) -> Result<Document> {
     let mut layers = Vec::new();
     let mut frames = Vec::new();
     let mut cels = Vec::new();
+    let mut images = Vec::new();
 
     if let Some(symbol) = symbols.get(0) {
         // Add layers based on the first frame
@@ -38,16 +39,19 @@ pub fn convert(doc: pixaki_v2::Document, base_path: &Path) -> Result<Document> {
                         let rgba_img = img.to_rgba8();
                         let (img_width, img_height) = rgba_img.dimensions();
 
+                        let image_index = images.len();
+                        images.push(Image {
+                            width: img_width as u16,
+                            height: img_height as u16,
+                            rgba: rgba_img.into_raw(),
+                        });
+
                         cels.push(Cel {
                             frame_index,
                             layer_index,
                             x: 0,
                             y: 0,
-                            image: Image {
-                                width: img_width as u16,
-                                height: img_height as u16,
-                                rgba: rgba_img.into_raw(),
-                            },
+                            image_index,
                         });
                     }
                 }
@@ -61,6 +65,7 @@ pub fn convert(doc: pixaki_v2::Document, base_path: &Path) -> Result<Document> {
         layers,
         frames,
         cels,
+        images,
     })
 }
 

@@ -1061,6 +1061,7 @@ pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
     let mut layers: Vec<Layer> = Vec::new();
     let mut frames: Vec<Frame> = Vec::new();
     let mut cels: Vec<Cel> = Vec::new();
+    let mut images: Vec<Image> = Vec::new();
 
     let clip = doc
         .clips
@@ -1101,14 +1102,14 @@ pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                 if let Some(last_cel_idx) = last_cel_per_layer[layer_index] {
                     let prev_x = cels[last_cel_idx].x;
                     let prev_y = cels[last_cel_idx].y;
-                    let prev_img = cels[last_cel_idx].image.clone();
+                    let prev_img_idx = cels[last_cel_idx].image_index;
 
                     let new_cel = Cel {
                         frame_index,
                         layer_index,
                         x: prev_x,
                         y: prev_y,
-                        image: prev_img,
+                        image_index: prev_img_idx,
                     };
                     last_cel_per_layer[layer_index] = Some(cels.len());
                     cels.push(new_cel);
@@ -1140,16 +1141,19 @@ pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                 );
 
                 if has_data {
+                    let image_index = images.len();
+                    images.push(Image {
+                        width: u16::try_from(img_width).unwrap_or(u16::MAX),
+                        height: u16::try_from(img_height).unwrap_or(u16::MAX),
+                        rgba: final_img.into_raw(),
+                    });
+
                     let cel = Cel {
                         frame_index,
                         layer_index,
                         x: (psp_layer.sx + min_x).clamp(i16::MIN as i32, i16::MAX as i32) as i16,
                         y: (psp_layer.sy + min_y).clamp(i16::MIN as i32, i16::MAX as i32) as i16,
-                        image: Image {
-                            width: u16::try_from(img_width).unwrap_or(u16::MAX),
-                            height: u16::try_from(img_height).unwrap_or(u16::MAX),
-                            rgba: final_img.into_raw(),
-                        },
+                        image_index,
                     };
 
                     last_cel_per_layer[layer_index] = Some(cels.len());
@@ -1165,6 +1169,7 @@ pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
         layers,
         frames,
         cels,
+        images,
     })
 }
 

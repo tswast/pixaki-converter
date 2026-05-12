@@ -3,14 +3,14 @@ use clap::Parser;
 use std::fs;
 use std::path::Path;
 
-/// A simple program to convert Pixaki and Pixel Studio Pro files to Aseprite files.
+/// A simple program to convert Pixaki, Pixel Studio Pro, PSD, and Aseprite files.
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    /// The path to the .pixaki directory or .psp file
+    /// The path to the input file or directory (.pixaki, .psp, .psd, .ase, .aseprite)
     input_path: std::path::PathBuf,
 
-    /// The path to the output .aseprite or .png file
+    /// The path to the output file (.ase, .aseprite, or .png)
     output_path: std::path::PathBuf,
 }
 
@@ -33,13 +33,21 @@ fn main() -> Result<()> {
             .is_some_and(|ext| ext.eq_ignore_ascii_case("psd"))
     {
         handle_psd_format(&cli.input_path)?
+    } else if cli.input_path.is_file()
+        && cli
+            .input_path
+            .extension()
+            .and_then(|e| e.to_str())
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("ase") || ext.eq_ignore_ascii_case("aseprite"))
+    {
+        handle_aseprite_format(&cli.input_path)?
     } else if cli.input_path.join("document.json").exists() {
         handle_modern_format(&cli.input_path)?
     } else if cli.input_path.join("DocumentInfo.plist").exists() {
         handle_legacy_format(&cli.input_path)?
     } else {
         return Err(anyhow!(
-            "No valid .psp, .psd file, or document.json/DocumentInfo.plist found in the given path"
+            "No valid .psp, .psd, .ase, .aseprite file, or document.json/DocumentInfo.plist found in the given path"
         ));
     };
 
@@ -119,4 +127,11 @@ fn handle_psp_format(psp_path: &Path) -> Result<pixel_art::Document> {
 fn handle_psd_format(psd_path: &Path) -> Result<pixel_art::Document> {
     let bytes = fs::read(psd_path)?;
     psd_converter::convert(&bytes).context("Failed to parse .psd file")
+}
+
+fn handle_aseprite_format(ase_path: &Path) -> Result<pixel_art::Document> {
+    let file = fs::File::open(ase_path)?;
+    let aseprite_file = aseprite::AsepriteFile::from_reader(file)
+        .context("Failed to parse .aseprite file")?;
+    aseprite_converter::reader::parse(aseprite_file)
 }
