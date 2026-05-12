@@ -16,14 +16,13 @@ aseprite-converter = { path = "../aseprite-converter" }
 serde_json = "1.0"
 plist = "1.6"
 anyhow = "1.0"
-aseprite = { package = "aseprite-io", version = "0.1" }
+aseprite-io = { version = "0.1" }
 base64 = "0.22.1"
 image = "0.25.10"
 serde = { version = "1.0.228", features = ["derive"] }
 tiny-skia = { version = "0.12.0", optional = true }
 psd = { git = "https://github.com/tswast/psd.git" }
 psd-converter = { version = "0.1.0", path = "../psd-converter" }
-aseprite-io = "0.1.0"
 
 [dev-dependencies]
 base64 = "0.22.1"
