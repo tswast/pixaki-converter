@@ -192,14 +192,14 @@ fn calculate_bounds(
                                     if shifted_min_x < min_x {
                                         min_x = shifted_min_x;
                                     }
-                                    if shifted_max_x > max_x {
-                                        max_x = shifted_max_x;
+                                    if shifted_max_x + 1 > max_x {
+                                        max_x = shifted_max_x + 1;
                                     }
                                     if shifted_min_y < min_y {
                                         min_y = shifted_min_y;
                                     }
-                                    if shifted_max_y > max_y {
-                                        max_y = shifted_max_y;
+                                    if shifted_max_y + 1 > max_y {
+                                        max_y = shifted_max_y + 1;
                                     }
 
                                     if sel_min_x < min_x { 

@@ -47,16 +47,7 @@ impl Document {
                 }
             }
 
-            // Perform alpha blending manually as imageops::overlay just copies pixels
-            for (x, y, p) in cel_img_modulated.enumerate_pixels() {
-                let dst_x = cel.x as i32 + x as i32;
-                let dst_y = cel.y as i32 + y as i32;
-                if dst_x >= 0 && dst_y >= 0 && (dst_x as u32) < self.width as u32 && (dst_y as u32) < self.height as u32 {
-                    let mut dst_p = *base.get_pixel(dst_x as u32, dst_y as u32);
-                    dst_p.blend(p);
-                    base.put_pixel(dst_x as u32, dst_y as u32, dst_p);
-                }
-            }
+            image::imageops::overlay(&mut base, &cel_img_modulated, cel.x as i64, cel.y as i64);
         }
 
         base
