@@ -340,7 +340,7 @@ fn test_layers_consistency() {
     let data_dir = PathBuf::from("tests/data/layers");
     let reference_png = data_dir.join("layers.png");
 
-    let test_files = vec!["layers.aseprite", "layers.psd"];
+    let test_files = vec!["layers.aseprite", "layers.psd", "layers.psp"];
 
     let expected_image = image::open(&reference_png)
         .expect("Unable to open reference PNG")

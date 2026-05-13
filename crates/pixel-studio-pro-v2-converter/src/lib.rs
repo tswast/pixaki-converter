@@ -201,6 +201,54 @@ fn calculate_bounds(
                                     if shifted_max_y > max_y {
                                         max_y = shifted_max_y;
                                     }
+
+                                    if sel_min_x < min_x { 
+                                        min_x = sel_min_x; 
+                                    }
+                                    if sel_max_x + 1 > max_x { 
+                                        max_x = sel_max_x + 1; 
+                                    }
+                                    if top_down_min_y < min_y { 
+                                        min_y = top_down_min_y; 
+                                    }
+                                    if top_down_max_y + 1 > max_y { 
+                                        max_y = top_down_max_y + 1; 
+                                    }
+                                }
+                            }
+                        } else {
+                            for j in (8..pos_bytes.len()).step_by(4) {
+                                if j + 3 < pos_bytes.len() {
+                                    let px = i16::from_le_bytes([pos_bytes[j], pos_bytes[j + 1]]) as i32;
+                                    let py = doc_height as i32 - 1 - i16::from_le_bytes([pos_bytes[j + 2], pos_bytes[j + 3]]) as i32;
+                                    let shifted_x = px + dx;
+                                    let shifted_y = py + dy;
+
+                                    if px < min_x { 
+                                        min_x = px; 
+                                    }
+                                    if px + 1 > max_x { 
+                                        max_x = px + 1; 
+                                    }
+                                    if py < min_y { 
+                                        min_y = py; 
+                                    }
+                                    if py + 1 > max_y { 
+                                        max_y = py + 1; 
+                                    }
+
+                                    if shifted_x < min_x { 
+                                        min_x = shifted_x; 
+                                    }
+                                    if shifted_x + 1 > max_x { 
+                                        max_x = shifted_x + 1; 
+                                    }
+                                    if shifted_y < min_y { 
+                                        min_y = shifted_y; 
+                                    }
+                                    if shifted_y + 1 > max_y { 
+                                        max_y = shifted_y + 1; 
+                                    }
                                 }
                             }
                         }
@@ -426,6 +474,38 @@ fn apply_move_action(
                             *has_data = true;
                         }
                     }
+                }
+            }
+        } else {
+            let mut moved_pixels = Vec::new();
+            for j in (8..pos_bytes.len()).step_by(4) {
+                if j + 3 < pos_bytes.len() {
+                    let px = i16::from_le_bytes([pos_bytes[j], pos_bytes[j + 1]]) as i32;
+                    let py = doc_height as i32 - 1 - i16::from_le_bytes([pos_bytes[j + 2], pos_bytes[j + 3]]) as i32;
+
+                    let canvas_x = px - min_x;
+                    let canvas_y = py - min_y;
+                    if canvas_x >= 0 && canvas_y >= 0 && (canvas_x as u32) < img_width && (canvas_y as u32) < img_height {
+                        let p = *final_img.get_pixel(canvas_x as u32, canvas_y as u32);
+                        moved_pixels.push((px, py, p));
+                    }
+                }
+            }
+
+            for (px, py, _) in &moved_pixels {
+                let canvas_x = px - min_x;
+                let canvas_y = py - min_y;
+                final_img.put_pixel(canvas_x as u32, canvas_y as u32, Rgba([0, 0, 0, 0]));
+                *has_data = true;
+            }
+
+            for (px, py, p) in moved_pixels {
+                let shifted_x = px + dx - min_x;
+                let shifted_y = py + dy - min_y;
+
+                if shifted_x >= 0 && shifted_y >= 0 && (shifted_x as u32) < img_width && (shifted_y as u32) < img_height {
+                    final_img.put_pixel(shifted_x as u32, shifted_y as u32, p);
+                    *has_data = true;
                 }
             }
         }
