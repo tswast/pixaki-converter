@@ -1176,7 +1176,7 @@ fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
     let doc_height = doc.height as u32;
 
     if let Some(first_frame) = clip.frames.first() {
-        for (layer_index, psp_layer) in first_frame.layers.iter().enumerate().rev() {
+        for (layer_index, psp_layer) in first_frame.layers.iter().enumerate() {
             if layer_index >= layers.len() {
                 continue;
             }
