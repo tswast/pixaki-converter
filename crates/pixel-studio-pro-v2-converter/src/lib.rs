@@ -201,11 +201,11 @@ fn calculate_bounds(
                                     if sel_max_x + 1 > max_x { 
                                         max_x = sel_max_x + 1; 
                                     }
-                                    if top_down_min_y < min_y { 
-                                        min_y = top_down_min_y; 
+                                    if sel_min_y < min_y {
+                                        min_y = sel_min_y;
                                     }
-                                    if top_down_max_y + 1 > max_y { 
-                                        max_y = top_down_max_y + 1; 
+                                    if sel_max_y + 1 > max_y {
+                                        max_y = sel_max_y + 1;
                                     }
                                 }
                             }
@@ -1131,7 +1131,190 @@ fn replay_actions(
     (final_img, has_data)
 }
 
-pub fn convert(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
+
+fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
+    let mut layers: Vec<Layer> = Vec::new();
+    let mut frames: Vec<Frame> = Vec::new();
+    let mut cels: Vec<Cel> = Vec::new();
+    let mut images: Vec<Image> = Vec::new();
+
+    let clip = doc
+        .clips
+        .first()
+        .ok_or_else(|| anyhow!("No clips found in document"))?;
+
+    // Create global layers from the first frame
+    if let Some(first_frame) = clip.frames.first() {
+        for psp_layer in &first_frame.layers {
+            layers.push(Layer {
+                name: psp_layer.name.clone(),
+                opacity: (psp_layer.opacity * 255.0).clamp(0.0, 255.0) as u8,
+                visible: !psp_layer.hidden,
+                blend_mode: BlendMode::Normal, // Basic fallback
+            });
+        }
+    }
+
+    // Store the last cel index for each layer to allow O(1) linked cel lookup
+    let mut last_cel_per_layer: Vec<Option<usize>> = vec![None; layers.len()];
+
+    let doc_width = doc.width as u32;
+    let doc_height = doc.height as u32;
+
+    if let Some(first_frame) = clip.frames.first() {
+        for (layer_index, psp_layer) in first_frame.layers.iter().enumerate().rev() {
+            if layer_index >= layers.len() {
+                continue;
+            }
+
+            if let Some(history_str) = &psp_layer.history_json {
+                let history = serde_json::from_str::<History>(history_str).map_err(|e| {
+                    anyhow!(
+                        "Failed to parse history JSON for layer {}: {}",
+                        layer_index,
+                        e
+                    )
+                })?;
+
+                let (min_x, min_y, max_x, max_y, source_img_opt) =
+                    calculate_bounds(&history, doc_width, doc_height);
+
+                // Cap max dimensions to a reasonable safeguard (e.g. 4096) to avoid OOM panics
+                let img_width = (max_x - min_x).clamp(1, 4096) as u32;
+                let img_height = (max_y - min_y).clamp(1, 4096) as u32;
+
+                let mut final_img = RgbaImage::new(img_width, img_height);
+
+                if let Some(src_img) = source_img_opt {
+                    let offset_x = -min_x;
+                    let offset_y = -min_y;
+                    for y in 0..src_img.height() {
+                        for x in 0..src_img.width() {
+                            let p = *src_img.get_pixel(x, y);
+                            let dst_x = offset_x + x as i32;
+                            let dst_y = offset_y + y as i32;
+                            if dst_x >= 0
+                                && dst_y >= 0
+                                && (dst_x as u32) < img_width
+                                && (dst_y as u32) < img_height
+                            {
+                                final_img.put_pixel(dst_x as u32, dst_y as u32, p);
+                            }
+                        }
+                    }
+                    let image_index = images.len();
+                    images.push(Image {
+                        width: u16::try_from(img_width).unwrap_or(u16::MAX),
+                        height: u16::try_from(img_height).unwrap_or(u16::MAX),
+                        rgba: final_img.clone().into_raw(),
+                    });
+
+                    let cel = Cel {
+                        frame_index: frames.len(),
+                        layer_index,
+                        x: (psp_layer.sx + min_x).clamp(i16::MIN as i32, i16::MAX as i32) as i16,
+                        y: (psp_layer.sy + min_y).clamp(i16::MIN as i32, i16::MAX as i32) as i16,
+                        image_index,
+                    };
+
+                    last_cel_per_layer[layer_index] = Some(cels.len());
+                    cels.push(cel.clone());
+
+                    frames.push(Frame { duration_ms: 100 });
+                    for l in 0..layers.len() {
+                        if l != layer_index {
+                            if let Some(last_cel_idx) = last_cel_per_layer[l] {
+                                let mut new_cel = cels[last_cel_idx].clone();
+                                new_cel.frame_index = frames.len() - 1;
+                                cels.push(new_cel);
+                            }
+                        }
+                    }
+                } else {
+                    let replay_count = std::cmp::min(history.index as usize, history.actions.len());
+                    for action in history.actions.iter().take(replay_count) {
+                        let mut has_data = false;
+                        if let Ok(tool_type) = pixel_studio_pro_v2::Tool::try_from(action.tool) {
+                            match tool_type {
+                                pixel_studio_pro_v2::Tool::Move => apply_move_action(action, &mut final_img, min_x, min_y, img_width, img_height, doc_height, &mut has_data),
+                                pixel_studio_pro_v2::Tool::RotateRect => apply_rotate_rect_action(action, &mut final_img, min_x, min_y, img_width, img_height, doc_height, &mut has_data),
+                                pixel_studio_pro_v2::Tool::PasteImage => apply_paste_import_action(tool_type, action, &mut final_img, min_x, min_y, img_width, img_height, doc_height, &mut has_data),
+                                pixel_studio_pro_v2::Tool::Pen
+                                | pixel_studio_pro_v2::Tool::DotPen
+                                | pixel_studio_pro_v2::Tool::DitheringPen
+                                | pixel_studio_pro_v2::Tool::Brush
+                                | pixel_studio_pro_v2::Tool::OutlineTool
+                                | pixel_studio_pro_v2::Tool::Fill
+                                | pixel_studio_pro_v2::Tool::Eraser
+                                | pixel_studio_pro_v2::Tool::Clear
+                                | pixel_studio_pro_v2::Tool::EraserPen
+                                | pixel_studio_pro_v2::Tool::Cut => apply_positions_to_image(tool_type, action, &mut final_img, min_x, min_y, img_width, img_height, doc_height, &mut has_data),
+                                pixel_studio_pro_v2::Tool::MirrorByX
+                                | pixel_studio_pro_v2::Tool::MirrorByY
+                                | pixel_studio_pro_v2::Tool::FlipByX
+                                | pixel_studio_pro_v2::Tool::FlipByY
+                                | pixel_studio_pro_v2::Tool::RotateLeft
+                                | pixel_studio_pro_v2::Tool::RotateRight => apply_transform_action(tool_type, action, &mut final_img, min_x, min_y, img_width, img_height, doc_height, &mut has_data),
+                                pixel_studio_pro_v2::Tool::ReplaceColor => {
+                                    apply_replace_color_action(action, &mut final_img, min_x, min_y, img_width, img_height, doc_height);
+                                    has_data = true; // Assume replace color modifies data if present
+                                },
+                                _ => {}
+                            }
+                        }
+
+                        if has_data {
+                            let image_index = images.len();
+                            images.push(Image {
+                                width: u16::try_from(img_width).unwrap_or(u16::MAX),
+                                height: u16::try_from(img_height).unwrap_or(u16::MAX),
+                                rgba: final_img.clone().into_raw(),
+                            });
+
+                            let cel = Cel {
+                                frame_index: frames.len(),
+                                layer_index,
+                                x: (psp_layer.sx + min_x).clamp(i16::MIN as i32, i16::MAX as i32) as i16,
+                                y: (psp_layer.sy + min_y).clamp(i16::MIN as i32, i16::MAX as i32) as i16,
+                                image_index,
+                            };
+
+                            last_cel_per_layer[layer_index] = Some(cels.len());
+                            cels.push(cel.clone());
+
+                            frames.push(Frame { duration_ms: 100 });
+                            for l in 0..layers.len() {
+                                if l != layer_index {
+                                    if let Some(last_cel_idx) = last_cel_per_layer[l] {
+                                        let mut new_cel = cels[last_cel_idx].clone();
+                                        new_cel.frame_index = frames.len() - 1;
+                                        cels.push(new_cel);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(Document {
+        width: u16::try_from(doc.width).unwrap_or(u16::MAX),
+        height: u16::try_from(doc.height).unwrap_or(u16::MAX),
+        layers,
+        frames,
+        cels,
+        images,
+    })
+}
+
+
+pub fn convert(doc: pixel_studio_pro_v2::Document, timelapse: bool) -> Result<Document> {
+    if timelapse {
+        return convert_timelapse(doc);
+    }
+
     let mut layers: Vec<Layer> = Vec::new();
     let mut frames: Vec<Frame> = Vec::new();
     let mut cels: Vec<Cel> = Vec::new();
@@ -1282,7 +1465,7 @@ mod tests {
             ..Default::default()
         };
 
-        let result = convert(doc_psp).unwrap();
+        let result = convert(doc_psp, false).unwrap();
         assert_eq!(result.width, 16);
         assert_eq!(result.layers.len(), 1);
         assert_eq!(result.frames.len(), 1);
