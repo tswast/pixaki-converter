@@ -167,7 +167,7 @@ fn test_image_export_frame_psp() {
     let json_str = fs::read_to_string(&psp_path).expect("Unable to read frame.psp");
     let doc_psp: pixel_studio_pro_v2::Document =
         serde_json::from_str(&json_str).expect("Unable to parse frame.psp");
-    let doc = pixel_studio_pro_v2_converter::convert(doc_psp)
+    let doc = pixel_studio_pro_v2_converter::convert(doc_psp, false)
         .expect("Failed to convert pixel_studio_pro_v2::Document");
 
     assert!(
@@ -212,7 +212,7 @@ fn test_pixel_studio_pro_v2_history_output_matches() {
             .unwrap_or_else(|_| panic!("Unable to read {}", psp_path.display()));
         let doc_psp: pixel_studio_pro_v2::Document = serde_json::from_str(&json_str)
             .unwrap_or_else(|_| panic!("Unable to parse {}", psp_path.display()));
-        let doc = pixel_studio_pro_v2_converter::convert(doc_psp)
+        let doc = pixel_studio_pro_v2_converter::convert(doc_psp, false)
             .unwrap_or_else(|_| panic!("Failed to convert {}", psp_path.display()));
 
         // Render Internal Document to PNG

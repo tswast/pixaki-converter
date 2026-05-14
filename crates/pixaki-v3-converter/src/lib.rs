@@ -53,29 +53,32 @@ pub fn convert(doc: pixaki_v3::Document, pixaki_path: &Path) -> Result<Document>
 
                 if in_range {
                     if let Some(cel_info) = cel_map.get(&clip.item_identifier) {
-                        let image_index = *image_cache.entry(cel_info.identifier.clone()).or_insert_with(|| {
-                            let image_path = image_dir.join(format!("{}.png", cel_info.identifier));
-                            if let Ok(img) = image::open(&image_path) {
-                                let rgba_img = img.to_rgba8();
-                                let (img_width, img_height) = rgba_img.dimensions();
-                                let idx = images.len();
-                                images.push(Image {
-                                    width: img_width as u16,
-                                    height: img_height as u16,
-                                    rgba: rgba_img.into_raw(),
-                                });
-                                idx
-                            } else {
-                                // Default/fallback if not found, though ideally handled better
-                                let idx = images.len();
-                                images.push(Image {
-                                    width: 1,
-                                    height: 1,
-                                    rgba: vec![0, 0, 0, 0],
-                                });
-                                idx
-                            }
-                        });
+                        let image_index = *image_cache
+                            .entry(cel_info.identifier.clone())
+                            .or_insert_with(|| {
+                                let image_path =
+                                    image_dir.join(format!("{}.png", cel_info.identifier));
+                                if let Ok(img) = image::open(&image_path) {
+                                    let rgba_img = img.to_rgba8();
+                                    let (img_width, img_height) = rgba_img.dimensions();
+                                    let idx = images.len();
+                                    images.push(Image {
+                                        width: img_width as u16,
+                                        height: img_height as u16,
+                                        rgba: rgba_img.into_raw(),
+                                    });
+                                    idx
+                                } else {
+                                    // Default/fallback if not found, though ideally handled better
+                                    let idx = images.len();
+                                    images.push(Image {
+                                        width: 1,
+                                        height: 1,
+                                        rgba: vec![0, 0, 0, 0],
+                                    });
+                                    idx
+                                }
+                            });
 
                         let x = cel_info.frame[0][0] as i16;
                         let y = cel_info.frame[0][1] as i16;

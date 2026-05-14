@@ -56,7 +56,9 @@ pub fn parse(aseprite_file: AsepriteFile) -> Result<Document> {
                     };
 
                     let image_index = if let Some(idx) = images.iter().position(|img: &Image| {
-                        img.width == pixels.width && img.height == pixels.height && img.rgba == pixels.data
+                        img.width == pixels.width
+                            && img.height == pixels.height
+                            && img.rgba == pixels.data
                     }) {
                         idx
                     } else {
@@ -102,7 +104,9 @@ mod tests {
         let layer_ref = aseprite.add_layer("Layer 1");
         let frame_idx = aseprite.add_frame(100);
         let pixels = Pixels::new(vec![255; 16 * 16 * 4], 16, 16, ColorMode::Rgba).unwrap();
-        aseprite.set_cel(layer_ref, frame_idx, pixels, 0, 0).unwrap();
+        aseprite
+            .set_cel(layer_ref, frame_idx, pixels, 0, 0)
+            .unwrap();
 
         let doc = parse(aseprite).unwrap();
 

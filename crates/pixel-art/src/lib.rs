@@ -11,7 +11,6 @@ pub struct Document {
 #[cfg(feature = "image")]
 impl Document {
     pub fn render(&self) -> image::RgbaImage {
-        use image::Pixel;
         let mut base = image::RgbaImage::new(self.width as u32, self.height as u32);
         if self.frames.is_empty() {
             return base;
