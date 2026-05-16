@@ -1247,7 +1247,7 @@ fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                     }
                 } else {
                     for action in history.actions.iter().take(replay_count) {
-                        let mut has_data = false;
+                        let mut _has_data = false;
                         if let Ok(tool_type) = pixel_studio_pro_v2::Tool::try_from(action.tool) {
                             match tool_type {
                                 pixel_studio_pro_v2::Tool::Move => apply_move_action(
@@ -1258,7 +1258,7 @@ fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                                     img_width,
                                     img_height,
                                     doc_height,
-                                    &mut has_data,
+                                    &mut _has_data,
                                 ),
                                 pixel_studio_pro_v2::Tool::RotateRect => apply_rotate_rect_action(
                                     action,
@@ -1268,7 +1268,7 @@ fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                                     img_width,
                                     img_height,
                                     doc_height,
-                                    &mut has_data,
+                                    &mut _has_data,
                                 ),
                                 pixel_studio_pro_v2::Tool::PasteImage => apply_paste_import_action(
                                     tool_type,
@@ -1279,7 +1279,7 @@ fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                                     img_width,
                                     img_height,
                                     doc_height,
-                                    &mut has_data,
+                                    &mut _has_data,
                                 ),
                                 pixel_studio_pro_v2::Tool::Pen
                                 | pixel_studio_pro_v2::Tool::DotPen
@@ -1299,7 +1299,7 @@ fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                                     img_width,
                                     img_height,
                                     doc_height,
-                                    &mut has_data,
+                                    &mut _has_data,
                                 ),
                                 pixel_studio_pro_v2::Tool::MirrorByX
                                 | pixel_studio_pro_v2::Tool::MirrorByY
@@ -1315,7 +1315,7 @@ fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                                     img_width,
                                     img_height,
                                     doc_height,
-                                    &mut has_data,
+                                    &mut _has_data,
                                 ),
                                 pixel_studio_pro_v2::Tool::ReplaceColor => {
                                     apply_replace_color_action(
@@ -1327,41 +1327,38 @@ fn convert_timelapse(doc: pixel_studio_pro_v2::Document) -> Result<Document> {
                                         img_height,
                                         doc_height,
                                     );
-                                    has_data = true; // Assume replace color modifies data if present
                                 }
                                 _ => {}
                             }
                         }
 
-                        if has_data {
-                            let image_index = images.len();
-                            images.push(Image {
-                                width: u16::try_from(img_width).unwrap_or(u16::MAX),
-                                height: u16::try_from(img_height).unwrap_or(u16::MAX),
-                                rgba: final_img.clone().into_raw(),
-                            });
+                        let image_index = images.len();
+                        images.push(Image {
+                            width: u16::try_from(img_width).unwrap_or(u16::MAX),
+                            height: u16::try_from(img_height).unwrap_or(u16::MAX),
+                            rgba: final_img.clone().into_raw(),
+                        });
 
-                            let cel = Cel {
-                                frame_index: frames.len(),
-                                layer_index,
-                                x: (psp_layer.sx + min_x).clamp(i16::MIN as i32, i16::MAX as i32)
-                                    as i16,
-                                y: (psp_layer.sy + min_y).clamp(i16::MIN as i32, i16::MAX as i32)
-                                    as i16,
-                                image_index,
-                            };
+                        let cel = Cel {
+                            frame_index: frames.len(),
+                            layer_index,
+                            x: (psp_layer.sx + min_x).clamp(i16::MIN as i32, i16::MAX as i32)
+                                as i16,
+                            y: (psp_layer.sy + min_y).clamp(i16::MIN as i32, i16::MAX as i32)
+                                as i16,
+                            image_index,
+                        };
 
-                            last_cel_per_layer[layer_index] = Some(cels.len());
-                            cels.push(cel.clone());
+                        last_cel_per_layer[layer_index] = Some(cels.len());
+                        cels.push(cel.clone());
 
-                            frames.push(Frame { duration_ms: 100 });
-                            for l in 0..layers.len() {
-                                if l != layer_index {
-                                    if let Some(last_cel_idx) = last_cel_per_layer[l] {
-                                        let mut new_cel = cels[last_cel_idx].clone();
-                                        new_cel.frame_index = frames.len() - 1;
-                                        cels.push(new_cel);
-                                    }
+                        frames.push(Frame { duration_ms: 100 });
+                        for l in 0..layers.len() {
+                            if l != layer_index {
+                                if let Some(last_cel_idx) = last_cel_per_layer[l] {
+                                    let mut new_cel = cels[last_cel_idx].clone();
+                                    new_cel.frame_index = frames.len() - 1;
+                                    cels.push(new_cel);
                                 }
                             }
                         }
